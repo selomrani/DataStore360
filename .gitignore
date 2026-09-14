@@ -1,0 +1,39 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (Raw files can be heavy, protect sensitive PII)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Reports
+reports/*.html
+!reports/.gitkeep
+
+# Environment & Secrets
+.env
+*.pem
+*.key
+
+# Docker & Airflow
+logs/
+airflow_logs/
+postgres_data/
+plugins/
+
+# IDE
+.idea/
+.vscode/
+*.swp
