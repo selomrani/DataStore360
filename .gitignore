@@ -32,6 +32,7 @@ logs/
 airflow_logs/
 postgres_data/
 plugins/
+config/
 
 # IDE
 .idea/
