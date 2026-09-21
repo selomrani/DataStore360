@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 #get raw data via csv
 
@@ -15,7 +15,7 @@ def drop_df_duplicates(data):
 #filling the missing postal codes , i will put 0000 as a filler
 def fix_missing_postal_code(data):
     data["Postal Code"] = (
-        data["Postal Code"].fillna(0).astype(int).astype(str).str.zfill(5)
+        data["Postal Code"].fillna("0").astype(str).str.split(".").str[0].str.zfill(5)
     )
     return data
 # converting Dates from strings to calcaulatable elements
@@ -70,12 +70,15 @@ def fix_customer_names(data):
 
 # fixing missing sales numbers
 def fix_sales_numbers(data: pd.DataFrame) -> pd.DataFrame:
-    calc_sales = data['Unit Price'] * data['Quantity'] * (1 - data['Discount'].fillna(0))
+    unit_price = data['Unit Price'].fillna(data.groupby('Product ID')['Unit Price'].transform('median'))
+    calc_sales = unit_price * data['Quantity'] * (1 - data['Discount'].fillna(0))
     data['Sales'] = data['Sales'].fillna(calc_sales).round(2)
     return data
 
 def fix_seguement_naming(data):
-    data['Segment'] = data['Segment'].replace({'consumerr': 'Consumer'})
+    data['Segment'] = data['Segment'].replace(
+        {'consumerr': 'Consumer', 'Consumerr': 'Consumer', 'Corporrate': 'Corporate', 'Home Ofice': 'Home Office'}
+    )
     return data
 
 def pseudonomise_customer_names(data):
@@ -87,5 +90,22 @@ def pseudonomise_customer_names(data):
 
 def delete_crazy_discounts(data:pd.DataFrame):
     return data[data['Discount'] <= 1.0]
+
+def run_pipeline(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.copy()
+    data = drop_df_duplicates(data)
+    data = make_dates_calculable(data)
+    data = fix_ship_dates(data)
+    data = normalize_categories_naming(data)
+    data = fix_seguement_naming(data)
+    data = fix_missing_ship_modes(data)
+    data = fix_customer_names(data)
+    data = fix_quantities(data)
+    data = fix_sales_numbers(data)
+    data = delete_crazy_discounts(data)
+    data = fix_missing_postal_code(data)
+    data = pseudonomise_customer_names(data)
+    data = data.dropna(subset=['Sales', 'Quantity'])
+    return data
 
 
